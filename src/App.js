@@ -114,8 +114,8 @@ class App extends React.Component {
     console.log(window.location.hostname);
 
     const basename =
-      window.location.hostname == "henryz00.github.io"
-        ? "GOSH-FHIRworks2020-React-Dashboard/#/"
+      window.location.hostname == ""
+        ? ""
         : "";
 
     return (
