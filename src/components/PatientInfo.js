@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Card, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { Button, Form } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 class PatientInfo extends Component {
   constructor(props) {
@@ -92,84 +93,65 @@ class PatientInfo extends Component {
     const { patientData, summaryData, isLoading, error, answer } = this.state;
 
     if (isLoading) {
-      return <div>Loading...</div>;
+      return <div className="text-center m-4">Loading...</div>;
     }
 
     if (error) {
-      return <div>Error: {error.message}</div>;
+      return <div className="text-center text-danger m-4">Error: {error.message}</div>;
     }
 
     if (!patientData) {
-      return <div>No patient data available</div>;
+      return <div className="text-center m-4">No patient data available</div>;
     }
 
     return (
-      <div>
-        <h1>Patient Information</h1>
-        <Card>
+      <div className="container mt-4">
+        <h1 className="text-center mb-4">Patient Information</h1>
+        
+        <Card className="mb-3">
           <Card.Body>
             <Card.Title>{patientData.name}</Card.Title>
-            <Card.Text>
-              <p>Birth Date: {patientData.birthDate}</p>
-            </Card.Text>
+            <Card.Text>Birth Date: {patientData.birthDate}</Card.Text>
           </Card.Body>
         </Card>
 
-        <Card>
+        <Card className="mb-3">
           <Card.Body>
-            <Card.Title>{'Summary'}</Card.Title>
-            <Card.Text>
-              <p>{summaryData}</p>
-            </Card.Text>
+            <Card.Title>Summary</Card.Title>
+            <Card.Text>{summaryData}</Card.Text>
           </Card.Body>
         </Card>
 
-        <h2>Conditions:</h2>
-        <ListGroup>
-          {patientData.conditions.map((condition) => (
-            <ListGroupItem key={condition.id}>{condition.code}</ListGroupItem>
-          ))}
-        </ListGroup>
+        {this.renderInfoSection("Conditions", patientData.conditions, "code")}
+        {this.renderInfoSection("Medications", patientData.medications, "code")}
+        {this.renderInfoSection("Encounters", patientData.encounters, "type")}
+        {this.renderInfoSection("Procedures", patientData.procedures, "name")}
+        {this.renderInfoSection("Allergies", patientData.allergies, "substance")}
 
-        <h2>Medications:</h2>
-        <ListGroup>
-          {patientData.medications.map((medication) => (
-            <ListGroupItem key={medication.id}>{medication.code}</ListGroupItem>
-          ))}
-        </ListGroup>
-
-        <h2>Encounters:</h2>
-        <ListGroup>
-          {patientData.encounters.map((encounter) => (
-            <ListGroupItem key={encounter.id}>{encounter.type}</ListGroupItem>
-          ))}
-        </ListGroup>
-
-        <h2>Procedures:</h2>
-        <ListGroup>
-          {patientData.procedures.map((procedure) => (
-            <ListGroupItem key={procedure.id}>{procedure.name}</ListGroupItem>
-          ))}
-        </ListGroup>
-
-        <h2>Allergies:</h2>
-        <ListGroup>
-          {patientData.allergies.map((allergy) => (
-            <ListGroupItem key={allergy.id}>{allergy.substance}</ListGroupItem>
-          ))}
-        </ListGroup>
-
-        <div>
-          <h2>Ask a Question:</h2>
+        <div className="mt-4">
+          <h2 className="mb-3">Ask a Question:</h2>
           <Form onSubmit={this.fetchAnswer}>
             <Form.Group>
               <Form.Control type="text" placeholder="Enter your question here" onChange={this.handleQuestionChange} />
             </Form.Group>
             <Button type="submit">Get Answer</Button>
           </Form>
-          {answer && <div><h3>Answer:</h3><p>{answer}</p></div>}
+          {answer && <div className="mt-3"><h3>Answer:</h3><p>{answer}</p></div>}
         </div>
       </div>
+    );
+  }
+
+  renderInfoSection(title, data, keyProperty) {
+    return (
+      <Card className="mb-3">
+        <Card.Header className="bg-primary text-light">{title}</Card.Header>
+        <ListGroup variant="flush">
+          {data.map((item) => (
+            <ListGroupItem key={item.id}>{item[keyProperty]}</ListGroupItem>
+          ))}
+        </ListGroup>
+      </Card>
     );
   }
 }
