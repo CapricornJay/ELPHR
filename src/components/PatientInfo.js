@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { Card, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 
 class PatientInfo extends Component {
   constructor(props) {
@@ -7,12 +9,16 @@ class PatientInfo extends Component {
       patientData: null,
       isLoading: true,
       error: null,
+      summaryData: null,
+      question: '',     // For holding the question input
+      answer: null      // For holding the API response based on the question
     };
   }
 
   componentDidMount() {
     const { patientId } = this.props;
-    console.log(patientId);
+
+    const summaryAPI = `https://fhir-ai.azurewebsites.net/fhir/get_patient_summary?patient_id=${patientId}`;
 
     // Replace 'apiUrl' with the actual URL of your API
     const apiUrl = `https://fhir-ai.azurewebsites.net/fhir/specifc_patient?patient_id=${patientId}`;
@@ -27,8 +33,28 @@ class PatientInfo extends Component {
       .then((data) => {
         this.setState({
           patientData: data,
-          isLoading: false,
           error: null,
+        });
+      })
+      .catch((error) => {
+        this.setState({
+          patientData: null,
+          error: error
+        });
+      });
+
+      fetch(summaryAPI)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then((data) => {
+        console.log(data);  
+        this.setState({
+          summaryData: data,
+          isLoading: false
         });
       })
       .catch((error) => {
@@ -40,8 +66,30 @@ class PatientInfo extends Component {
       });
   }
 
+  handleQuestionChange = (e) => {
+    this.setState({
+      question: e.target.value
+    });
+  }
+
+  fetchAnswer = (event) => {
+    event.preventDefault();
+    const { patientId } = this.props;
+    const questionAPI = `https://fhir-ai.azurewebsites.net/fhir/get_patient_summary?patient_id=${patientId}&question=${this.state.question}`;
+    
+    fetch(questionAPI)
+      .then(response => response.text())
+      .then(data => {
+        console.log(data);
+        this.setState({ answer: data });
+      })
+      .catch(error => {
+        this.setState({ error });
+      });
+  }
+
   render() {
-    const { patientData, isLoading, error } = this.state;
+    const { patientData, summaryData, isLoading, error, answer } = this.state;
 
     if (isLoading) {
       return <div>Loading...</div>;
@@ -58,44 +106,69 @@ class PatientInfo extends Component {
     return (
       <div>
         <h1>Patient Information</h1>
-        <p>Name: {patientData.name}</p>
-        <p>Birth Date: {patientData.birthDate}</p>
+        <Card>
+          <Card.Body>
+            <Card.Title>{patientData.name}</Card.Title>
+            <Card.Text>
+              <p>Birth Date: {patientData.birthDate}</p>
+            </Card.Text>
+          </Card.Body>
+        </Card>
+
+        <Card>
+          <Card.Body>
+            <Card.Title>{'Summary'}</Card.Title>
+            <Card.Text>
+              <p>{summaryData}</p>
+            </Card.Text>
+          </Card.Body>
+        </Card>
 
         <h2>Conditions:</h2>
-        <ul>
+        <ListGroup>
           {patientData.conditions.map((condition) => (
-            <li key={condition.id}>{condition.code}</li>
+            <ListGroupItem key={condition.id}>{condition.code}</ListGroupItem>
           ))}
-        </ul>
+        </ListGroup>
 
         <h2>Medications:</h2>
-        <ul>
+        <ListGroup>
           {patientData.medications.map((medication) => (
-            <li key={medication.id}>{medication.code}</li>
+            <ListGroupItem key={medication.id}>{medication.code}</ListGroupItem>
           ))}
-        </ul>
+        </ListGroup>
 
         <h2>Encounters:</h2>
-        <ul>
+        <ListGroup>
           {patientData.encounters.map((encounter) => (
-            <li key={encounter.id}>{encounter.type}</li>
+            <ListGroupItem key={encounter.id}>{encounter.type}</ListGroupItem>
           ))}
-        </ul>
+        </ListGroup>
 
         <h2>Procedures:</h2>
-        <ul>
+        <ListGroup>
           {patientData.procedures.map((procedure) => (
-            <li key={procedure.id}>{procedure.name}</li>
+            <ListGroupItem key={procedure.id}>{procedure.name}</ListGroupItem>
           ))}
-        </ul>
+        </ListGroup>
 
         <h2>Allergies:</h2>
-        <ul>
+        <ListGroup>
           {patientData.allergies.map((allergy) => (
-            <li key={allergy.id}>{allergy.substance}</li>
+            <ListGroupItem key={allergy.id}>{allergy.substance}</ListGroupItem>
           ))}
-        </ul>
+        </ListGroup>
 
+        <div>
+          <h2>Ask a Question:</h2>
+          <Form onSubmit={this.fetchAnswer}>
+            <Form.Group>
+              <Form.Control type="text" placeholder="Enter your question here" onChange={this.handleQuestionChange} />
+            </Form.Group>
+            <Button type="submit">Get Answer</Button>
+          </Form>
+          {answer && <div><h3>Answer:</h3><p>{answer}</p></div>}
+        </div>
       </div>
     );
   }
