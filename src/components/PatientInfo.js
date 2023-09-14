@@ -15,7 +15,7 @@ class PatientInfo extends Component {
     console.log(patientId);
 
     // Replace 'apiUrl' with the actual URL of your API
-    const apiUrl = `http://20.236.205.31:48/fhir/specifc_patient?patient_id=${patientId}`;
+    const apiUrl = `https://fhir-ai.azurewebsites.net/fhir/specifc_patient?patient_id=${patientId}`;
 
     fetch(apiUrl)
       .then((response) => {
