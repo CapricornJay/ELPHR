@@ -1,7 +1,7 @@
 let patientListDemo = require("./patientDemoData.json");
 let observationDemo = require("./observationDemoData.json");
 
-const SERVER_URL = "http://20.236.205.31:48/fhir/get_patients"
+const SERVER_URL = "https://fhir-ai.azurewebsites.net/fhir/get_patients"
 
 const moment = require("moment");
 
