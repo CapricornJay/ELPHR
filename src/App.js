@@ -46,10 +46,10 @@ class DesktopMenu extends React.Component {
         breakpoint="lg"
         width="230"
         style={{
-          boxShadow: "7px 0px 20px -10px rgba(0,0,0,0.35)",
-          overflow: "auto",
-          height: "100vh",
-          position: "sticky",
+          boxShadow: "7px 0px 20px -10px rgba(0,0,0,0.35) !important",
+          overflow: "auto !important",
+          height: "100vh !important",
+          position: "sticky !important",
           top: 0,
           left: 0
         }}
@@ -65,17 +65,17 @@ const routes = [
   {
     path: "/",
     exact: true,
-    title: () => "Home",
+    title: () => "ELPHR",
     main: () => <HomePage />
   },
   {
     path: "/patients",
-    title: () => "Patients",
+    title: () => "ELPHR",
     main: () => <PatientPage />
   },
   {
     path: "/search",
-    title: () => "Search",
+    title: () => "ELPHR",
     main: () => <SearchPage />
   },
   {

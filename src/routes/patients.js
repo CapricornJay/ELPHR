@@ -40,7 +40,7 @@ class PatientsPage extends React.Component {
     return (
       <div>
         <Overlay show={this.state.awaitingData}></Overlay>
-        {!this.props.filter && <Header title="Patients List"></Header>}
+        {!this.props.filter && <Header title=""></Header>}
         <PatientsListDisplay patients={patientData} loading={this.state.awaitingData} />
       </div>
     );

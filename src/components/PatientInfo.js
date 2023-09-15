@@ -90,44 +90,51 @@ class PatientInfo extends Component {
   }
 
   formatSummary(summaryText) {
-    const majorSections = summaryText.split(': - ');
+    // Split the summaryText into major sections based on two newline characters
+    summaryText = summaryText.replace("Summary of the patient's medical records:", "AI Summary:");
+    const majorSections = summaryText.split('\n\n');
   
-    const formattedSections = majorSections.map(section => {
-      const [header, ...rest] = section.split('- ').map(s => s.trim());
+    return majorSections.map((section, sectionIndex) => {
+        const [header, ...items] = section.split('\n').map(s => s.trim());
   
-      // if a section doesn't have items
-      if (!rest.length) {
-        return <h3 key={header}>{header}</h3>;
-      }
+        // Convert list items to JSX
+        const formattedItems = items.map((item, index) => {
+            // Check if item is a key-value pair
+            if (item.includes(': ')) {
+                const [key, value] = item.split(': ');
+                return (
+                    <p key={`${key}-${index}`}>
+                        &bull; <strong>{key}:</strong> {value}
+                    </p>
+                );
+            } else {
+                return <p key={`${item}-${index}`}>&bull; {item}</p>;
+            }
+        });
   
-      // Convert list items to JSX
-      const items = rest.map((item, index) => {
-        // Check if item is a key-value pair
-        if (item.includes(': ')) {
-          const [key, value] = item.split(': ');
-          return <p key={`${key}-${index}`}><strong>{key}:</strong> {value}</p>;
-        } else {
-          return <p key={`${item}-${index}`}>&bull; {item}</p>;
-        }
-      });
-  
-      return (
-        <div key={header}>
-          <h3>{header}</h3>
-          {items}
-        </div>
-      );
+        return (
+            <div key={`${header}-${sectionIndex}`} style={{ marginBottom: 20 }}>
+                <h3>{header}</h3>
+                {formattedItems}
+            </div>
+        );
     });
-  
-    return formattedSections;
-  }
+}
+
   
 
   render() {
     const { patientData, summaryData, isLoading, error, answer } = this.state;
 
     if (isLoading) {
-      return <div className="text-center m-4">Loading...</div>;
+        return (
+          <div className="text-center m-4">
+              <div className="spinner-border" role="status">
+                  <span className="sr-only">Loading...</span>
+              </div>
+              <div>Loading...</div>
+          </div>
+      );    
     }
 
     if (error) {
@@ -135,7 +142,14 @@ class PatientInfo extends Component {
     }
 
     if (!patientData) {
-      return <div className="text-center m-4">No patient data available</div>;
+      return (
+        <div className="text-center m-4">
+            <div className="spinner-border" role="status">
+                <span className="sr-only">Loading...</span>
+            </div>
+            <div>Loading...</div>
+        </div>
+    );  
     }
 
     return (
@@ -162,14 +176,14 @@ class PatientInfo extends Component {
         {this.renderInfoSection("Allergies", patientData.allergies, "substance")}
 
         <div className="mt-4">
-          <h2 className="mb-3">Ask a Question:</h2>
+          <h2 className="mb-3">Ask a Question about this patient:</h2>
           <Form onSubmit={this.fetchAnswer}>
             <Form.Group>
               <Form.Control type="text" placeholder="Enter your question here" onChange={this.handleQuestionChange} />
             </Form.Group>
             <Button type="submit" className="mt-2">Get Answer</Button> {/* Added margin-top class here */}
           </Form>
-          {answer && <div className="mt-3"><h3>Answer:</h3><p>{answer}</p></div>}
+          {answer ? <div className="mt-3"><h3>Answer:</h3><p>{answer}</p></div> : <div className="mt-3"></div>  }
         </div>
       </div>
     );
