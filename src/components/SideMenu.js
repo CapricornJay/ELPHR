@@ -35,11 +35,6 @@ class SideMenu extends React.Component {
           <span>Search</span>
           <NavLink to="/search" />
         </Menu.Item>
-        <Menu.Item key="/statistics">
-          <BarChartOutlined />
-          <span>Dashboard</span>
-          <NavLink to="/statistics" />
-        </Menu.Item>
       </Menu>
     );
   }

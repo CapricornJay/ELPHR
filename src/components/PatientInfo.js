@@ -89,6 +89,40 @@ class PatientInfo extends Component {
       });
   }
 
+  formatSummary(summaryText) {
+    const majorSections = summaryText.split(': - ');
+  
+    const formattedSections = majorSections.map(section => {
+      const [header, ...rest] = section.split('- ').map(s => s.trim());
+  
+      // if a section doesn't have items
+      if (!rest.length) {
+        return <h3 key={header}>{header}</h3>;
+      }
+  
+      // Convert list items to JSX
+      const items = rest.map((item, index) => {
+        // Check if item is a key-value pair
+        if (item.includes(': ')) {
+          const [key, value] = item.split(': ');
+          return <p key={`${key}-${index}`}><strong>{key}:</strong> {value}</p>;
+        } else {
+          return <p key={`${item}-${index}`}>&bull; {item}</p>;
+        }
+      });
+  
+      return (
+        <div key={header}>
+          <h3>{header}</h3>
+          {items}
+        </div>
+      );
+    });
+  
+    return formattedSections;
+  }
+  
+
   render() {
     const { patientData, summaryData, isLoading, error, answer } = this.state;
 
@@ -116,16 +150,15 @@ class PatientInfo extends Component {
         </Card>
 
         <Card className="mb-3">
-          <Card.Body>
-            <Card.Title>Summary</Card.Title>
-            <Card.Text>{summaryData}</Card.Text>
-          </Card.Body>
-        </Card>
+        <Card.Body>
+          <div>{this.formatSummary(summaryData)}</div>
+        </Card.Body>
+      </Card>
 
         {this.renderInfoSection("Conditions", patientData.conditions, "code")}
         {this.renderInfoSection("Medications", patientData.medications, "code")}
         {this.renderInfoSection("Encounters", patientData.encounters, "type")}
-        {this.renderInfoSection("Procedures", patientData.procedures, "name")}
+        {this.renderInfoSection("Procedures", patientData.procedures, "code")}
         {this.renderInfoSection("Allergies", patientData.allergies, "substance")}
 
         <div className="mt-4">
@@ -134,7 +167,7 @@ class PatientInfo extends Component {
             <Form.Group>
               <Form.Control type="text" placeholder="Enter your question here" onChange={this.handleQuestionChange} />
             </Form.Group>
-            <Button type="submit">Get Answer</Button>
+            <Button type="submit" className="mt-2">Get Answer</Button> {/* Added margin-top class here */}
           </Form>
           {answer && <div className="mt-3"><h3>Answer:</h3><p>{answer}</p></div>}
         </div>
@@ -144,14 +177,18 @@ class PatientInfo extends Component {
 
   renderInfoSection(title, data, keyProperty) {
     return (
-      <Card className="mb-3">
-        <Card.Header className="bg-primary text-light">{title}</Card.Header>
-        <ListGroup variant="flush">
-          {data.map((item) => (
+    <Card className="mb-3">
+      <Card.Header className="bg-primary text-light">{title}</Card.Header>
+      <ListGroup variant="flush">
+        {data.length > 0 ? (
+          data.map((item) => (
             <ListGroupItem key={item.id}>{item[keyProperty]}</ListGroupItem>
-          ))}
-        </ListGroup>
-      </Card>
+          ))
+        ) : (
+          <ListGroupItem>No data available</ListGroupItem>
+        )}
+      </ListGroup>
+    </Card>
     );
   }
 }
